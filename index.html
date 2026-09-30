@@ -1,17 +1,11 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mixermind</title>
 <style>
   :root {
-    --red:    #b85c5c;
-    --blue:   #5c7fb8;
-    --green:  #6b9e78;
-    --yellow: #d6b85a;
-    --orange: #c98a5b;
-    --purple: #8a6fa8;
     --bg:     #1e1e24;
     --panel:  #2a2a33;
     --hole:   #3a3a44;
@@ -23,8 +17,8 @@
 
   body {
     margin: 0;
-    min-height: 100vh;      /* fallback för äldre webbläsare */
-    min-height: 100dvh;     /* modern – följer faktisk viewport på mobil */
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -35,7 +29,7 @@
     user-select: none;
     -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
-    overscroll-behavior: none;  /* stäng av studs i kanterna */
+    overscroll-behavior: none;
   }
 
   .game {
@@ -108,6 +102,12 @@
     background: var(--hole);
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: background 0.15s, transform 0.08s, box-shadow 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.72rem;
+    line-height: 1;
   }
 
   .peg.filled {
@@ -123,11 +123,7 @@
   }
 
   .peg.hidden-peg {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     color: var(--muted);
-    font-weight: 700;
     font-size: 1rem;
   }
 
@@ -148,7 +144,7 @@
     box-shadow:
       inset 0 -3px 6px rgba(0, 0, 0, 0.32),
       inset 0 3px 6px rgba(255, 255, 255, 0.14),
-      0 0 0 3px var(--green) !important;
+      0 0 0 3px #6b9e78 !important;
   }
 
   body.has-selection .row.current .peg:not(.filled) {
@@ -159,33 +155,50 @@
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
   }
 
+  /* ---- Feedback-fältet: tomt tills en gissning har gjorts ---- */
   .feedback {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 3px;
-    padding: 3px;
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+  }
+
+  .feedback.active {
+    background: #4a4a55;
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.35);
   }
 
   .fb-peg {
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
+    background: transparent;
   }
 
-  .fb-peg.black {
-    background: #0c0c10;
-    border: 1px solid rgba(255, 255, 255, 0.18);
+  .feedback.active .fb-peg {
+    background: #7a7a86;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
   }
 
-  .fb-peg.white {
-    background: #e8e8ec;
+  .feedback.active .fb-peg.black {
+    background: #050508;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.6);
+  }
+
+  .feedback.active .fb-peg.white {
+    background: #f0f0f4;
+    box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.15);
   }
 
   .palette {
     display: flex;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     margin-bottom: 8px;
     flex-wrap: wrap;
   }
@@ -281,8 +294,8 @@
   .controls button:disabled { opacity: 0.35; cursor: not-allowed; }
 
   .controls #submit {
-    background: var(--green);
-    border-color: var(--green);
+    background: #6b9e78;
+    border-color: #6b9e78;
     color: #fff;
   }
   .controls #submit:hover:not(:disabled) { background: #7aae87; }
@@ -295,6 +308,18 @@
     line-height: 1.35;
   }
 
+  /* Tips-rad: dold på desktop, visas bara på mobil */
+  .mobile-tip {
+    display: none;
+    text-align: center;
+    font-size: 0.68rem;
+    font-style: italic;
+    color: var(--muted);
+    opacity: 0.7;
+    margin-top: 10px;
+    letter-spacing: 0.02em;
+  }
+
   @media (max-width: 520px) {
     body { padding: 10px; }
     .game { padding: 14px; border-radius: 14px; }
@@ -302,12 +327,35 @@
     .peg { width: 28px; height: 28px; }
     .peg.big { width: 34px; height: 34px; }
     .pegs { gap: 6px; }
-    .row { grid-template-columns: 20px 1fr auto; gap: 6px; padding: 4px 6px; }
+    .row {
+      grid-template-columns: 18px 1fr auto;
+      gap: 6px;
+      padding: 4px 6px;
+    }
+
+    /* Palett som grid – alla sex delar jämnt på bredden */
+    .palette {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+    }
+    .color-btn {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1;
+    }
+
+    .feedback {
+      gap: 2px;
+      padding: 3px;
+      border-radius: 7px;
+    }
     .fb-peg { width: 10px; height: 10px; }
-    .color-btn { width: 40px; height: 40px; }
+
     .drag-ghost { width: 40px; height: 40px; }
-    .palette { gap: 8px; }
     .controls button { padding: 10px 8px; font-size: 0.85rem; }
+
+    .mobile-tip { display: block; }
   }
 </style>
 </head>
@@ -324,6 +372,7 @@
     <button id="new">New game</button>
   </div>
   <div class="message" id="message"></div>
+  <div class="mobile-tip">Tip: drag the board up to stabilise the view.</div>
 </div>
 
 <script>
@@ -472,17 +521,25 @@
     }
   }
 
+  function applyColorToPeg(peg, colorIndex, size) {
+    const c = COLORS[colorIndex];
+    peg.style.background = c.hex;
+    if (size === 'big') peg.classList.add('big');
+    peg.classList.add('filled');
+  }
+
   function renderSecret() {
     secretEl.innerHTML = '';
     for (let i = 0; i < CODE_LENGTH; i++) {
       const peg = document.createElement('div');
-      peg.className = 'peg big';
+      peg.className = 'peg';
       if (gameOver) {
-        peg.style.background = COLORS[secret[i]].hex;
-        peg.classList.add('filled');
+        applyColorToPeg(peg, secret[i], 'big');
       } else {
         peg.classList.add('hidden-peg');
         peg.textContent = '?';
+        peg.style.width = '40px';
+        peg.style.height = '40px';
       }
       secretEl.appendChild(peg);
     }
@@ -519,8 +576,7 @@
         const peg = document.createElement('div');
         peg.className = 'peg';
         if (pegColors[c] !== null && pegColors[c] !== undefined) {
-          peg.style.background = COLORS[pegColors[c]].hex;
-          peg.classList.add('filled');
+          applyColorToPeg(peg, pegColors[c]);
         }
         if (isCurrent) {
           peg.dataset.slot = c;
@@ -532,6 +588,8 @@
 
       const fbWrap = document.createElement('div');
       fbWrap.className = 'feedback';
+      if (fb) fbWrap.classList.add('active');
+
       const blacks = fb ? fb.black : 0;
       const whites = fb ? fb.white : 0;
 
