@@ -23,7 +23,8 @@
 
   body {
     margin: 0;
-    min-height: 100vh;
+    min-height: 100vh;      /* fallback för äldre webbläsare */
+    min-height: 100dvh;     /* modern – följer faktisk viewport på mobil */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -34,6 +35,7 @@
     user-select: none;
     -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;  /* stäng av studs i kanterna */
   }
 
   .game {
@@ -327,11 +329,11 @@
 <script>
   const COLORS = [
     { name: 'Red',    hex: '#b85c5c' },
-    { name: 'Blue',    hex: '#5c7fb8' },
-    { name: 'Green',   hex: '#6b9e78' },
-    { name: 'Yellow',    hex: '#d6b85a' },
+    { name: 'Blue',   hex: '#5c7fb8' },
+    { name: 'Green',  hex: '#6b9e78' },
+    { name: 'Yellow', hex: '#d6b85a' },
     { name: 'Orange', hex: '#c98a5b' },
-    { name: 'Purple',   hex: '#8a6fa8' },
+    { name: 'Purple', hex: '#8a6fa8' },
   ];
 
   const CODE_LENGTH = 4;
@@ -360,7 +362,7 @@
     selectedColor = null;
     gameOver = false;
     render();
-    setMessage('Drag a color to the row - or click');
+    setMessage('Drag a color to the row — or click.');
   }
 
   function feedback(guess, secret) {
@@ -434,12 +436,12 @@
 
     if (fb.black === CODE_LENGTH) {
       gameOver = true;
-      setMessage(`Right! Done on ${guesses.length} trials.`);
+      setMessage(`Solved! Cracked in ${guesses.length} ${guesses.length === 1 ? 'try' : 'tries'}.`);
     } else if (guesses.length === MAX_GUESSES) {
       gameOver = true;
-      setMessage('End of trials - the code is revealed above.');
+      setMessage('Out of tries — the code is revealed above.');
     } else {
-      setMessage(`${fb.black} svart${fb.black === 1 ? '' : 'a'} · ${fb.white} vit${fb.white === 1 ? '' : 'a'}`);
+      setMessage(`${fb.black} black · ${fb.white} white`);
     }
 
     render();
@@ -462,9 +464,9 @@
   function renderHint() {
     if (gameOver) { hintEl.textContent = ''; return; }
     if (selectedColor !== null) {
-      hintEl.textContent = `${COLORS[selectedColor].name} selected – click in the row or drag`;
+      hintEl.textContent = `${COLORS[selectedColor].name} selected — click a slot or drag it`;
     } else if (filledCount() > 0) {
-      hintEl.textContent = 'Drag a color here – or click a box to empty';
+      hintEl.textContent = 'Drag a color here — or click a filled slot to clear it';
     } else {
       hintEl.textContent = 'Drag or click a color into a box';
     }
